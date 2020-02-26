@@ -8,14 +8,19 @@ import android.widget.BaseAdapter
 import androidx.core.content.ContextCompat
 import com.example.financaskotlin.R
 import com.example.financaskotlin.extensions.formataDataParaPadraoBrasileiro
+import com.example.financaskotlin.extensions.formataMoedaParaReal
+import com.example.financaskotlin.extensions.limitaCategoriaEmAte
 import com.example.financaskotlin.models.Tipo
 import com.example.financaskotlin.models.Transacao
 import kotlinx.android.synthetic.main.transacao_item.view.*
+import java.math.BigDecimal
+import java.text.DecimalFormat
+import java.util.*
 
-class ListaTransacoesAdapter(transacoes: List<Transacao>, context: Context) : BaseAdapter() {
+class ListaTransacoesAdapter(private val transacoes: List<Transacao>,
+                             private val context: Context) : BaseAdapter() {
 
-    private val transacoes = transacoes
-    private val context = context
+    private val quantidadeLimiteDaCategoria = 14
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val viewCriada = LayoutInflater.from(context)
@@ -23,23 +28,60 @@ class ListaTransacoesAdapter(transacoes: List<Transacao>, context: Context) : Ba
 
         val transacao = transacoes[position]
 
-        if(transacao.tipo == Tipo.RECEITA) {
-            viewCriada.transacao_valor
-                .setTextColor(ContextCompat.getColor(context, R.color.receita))
-            viewCriada.transacao_icone
-                .setBackgroundResource(R.drawable.icone_transacao_item_receita)
-        } else {
-            viewCriada.transacao_valor
-                .setTextColor(ContextCompat.getColor(context, R.color.despesa))
-            viewCriada.transacao_icone
-                .setBackgroundResource(R.drawable.icone_transacao_item_despesa)
-        }
-
-        viewCriada.transacao_valor.text = transacao.valor.toString()
-        viewCriada.transacao_categoria.text = transacao.categoria
-        viewCriada.transacao_data.text = transacao.data.formataDataParaPadraoBrasileiro()
+        atribuiIconeATransacao(transacao, viewCriada)
+        atribuiCorATransacao(viewCriada, transacao)
+        atribuiValorATransacao(viewCriada, transacao)
+        atribuiCategoriaATransacao(viewCriada, transacao)
+        atribuiDataATransacao(viewCriada, transacao)
 
         return viewCriada
+    }
+
+    private fun atribuiIconeATransacao(transacao: Transacao,
+                                       viewCriada: View) {
+        val iconeDaTransacao: Int = pegaIconeDaTransacao(transacao.tipo)
+
+        viewCriada.transacao_icone
+            .setBackgroundResource(iconeDaTransacao)
+    }
+
+    private fun pegaIconeDaTransacao(tipo: Tipo): Int {
+        return when (tipo) {
+            Tipo.RECEITA -> R.drawable.icone_transacao_item_receita
+            Tipo.DESPESA -> R.drawable.icone_transacao_item_despesa
+        }
+    }
+
+    private fun atribuiCorATransacao(viewCriada: View,
+                                     transacao: Transacao) {
+
+        val corDaTransacao: Int = pegaCorDaTransacao(transacao.tipo)
+
+        viewCriada.transacao_valor
+            .setTextColor(corDaTransacao)
+    }
+
+    private fun pegaCorDaTransacao(tipo: Tipo): Int {
+        return when (tipo) {
+            Tipo.RECEITA -> ContextCompat.getColor(context, R.color.receita)
+            Tipo.DESPESA -> ContextCompat.getColor(context, R.color.despesa)
+        }
+    }
+
+    private fun atribuiDataATransacao(viewCriada: View,
+                                      transacao: Transacao) {
+        viewCriada.transacao_data.text = transacao.data.formataDataParaPadraoBrasileiro()
+    }
+
+    private fun atribuiCategoriaATransacao(viewCriada: View,
+                                           transacao: Transacao) {
+        viewCriada.transacao_categoria.text = transacao.categoria
+            .limitaCategoriaEmAte(quantidadeLimiteDaCategoria)
+    }
+
+    private fun atribuiValorATransacao(viewCriada: View,
+                                       transacao: Transacao) {
+        viewCriada.transacao_valor.text = transacao.valor.formataMoedaParaReal()
     }
 
     override fun getItem(position: Int): Transacao {
