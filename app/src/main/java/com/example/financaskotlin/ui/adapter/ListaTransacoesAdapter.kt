@@ -13,9 +13,6 @@ import com.example.financaskotlin.extensions.limitaCategoriaEmAte
 import com.example.financaskotlin.models.Tipo
 import com.example.financaskotlin.models.Transacao
 import kotlinx.android.synthetic.main.transacao_item.view.*
-import java.math.BigDecimal
-import java.text.DecimalFormat
-import java.util.*
 
 class ListaTransacoesAdapter(private val transacoes: List<Transacao>,
                              private val context: Context) : BaseAdapter() {
