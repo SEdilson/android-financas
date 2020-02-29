@@ -18,5 +18,4 @@ class AdicionaTransacaoDialog(
         }
         return R.string.adiciona_despesa
     }
-
 }

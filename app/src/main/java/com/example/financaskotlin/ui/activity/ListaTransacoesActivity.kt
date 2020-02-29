@@ -1,8 +1,8 @@
 package com.example.financaskotlin.ui.activity
 
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.widget.AdapterView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.financaskotlin.R
 import com.example.financaskotlin.models.Tipo
@@ -76,7 +76,26 @@ class ListaTransacoesActivity : AppCompatActivity() {
                 val transacao = transacoes[position]
                 chamaDialogDeAlteracao(transacao, position)
             }
+            setOnCreateContextMenuListener { menu, _, _ ->
+                menu.add(Menu.NONE, 1, Menu.NONE, "Remover")
+            }
         }
+    }
+
+    override fun onContextItemSelected(item: MenuItem): Boolean {
+        val itemId = item.itemId
+        if(itemId == 1) {
+            val adapterMenuInfo = item.menuInfo as AdapterView.AdapterContextMenuInfo
+            val posicaoDaTransacao = adapterMenuInfo.position
+            removeTransacao(posicaoDaTransacao)
+        }
+
+        return super.onContextItemSelected(item)
+    }
+
+    private fun removeTransacao(posicaoDaTransacao: Int) {
+        transacoes.removeAt(posicaoDaTransacao)
+        atualizaTransacoes()
     }
 
     private fun chamaDialogDeAlteracao(transacao: Transacao, position: Int) {
